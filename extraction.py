@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pylab as plt
 import math
 from difflib import SequenceMatcher
-from flask import Flask  
+import flask
+from flask import request, jsonify
+from flask_cors import CORS
 
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
@@ -15,9 +17,11 @@ import os
 from PIL import Image
 import sys
 import time
-import re
+import requests
+from convert_base64 import ConvertoImage
+import requests
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 
 '''
 Authenticate
@@ -28,9 +32,11 @@ endpoint = "https://healthcardsk.cognitiveservices.azure.com/"
 
 computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
 
-@app.route('/pan')
+@app.route('/pan', methods=['POST'])
 def pan_extraction():
-    read_image_path = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Documents\card_scan\pan_data\pan1.jpg"
+    content = request.json
+    ConvertoImage(content['base64data'])
+    read_image_path = "./image1.png"
     read_image = open(read_image_path, "rb")
 
     read_response = computervision_client.read_in_stream(read_image,  raw=True)
@@ -69,7 +75,7 @@ def pan_extraction():
 
     return details
 
-@app.route('/aadhar')
+@app.route('/aadhar', methods=['POST'])
 def aadhar_extraction():
     read_image_path = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Pictures\Camera Roll\WIN_20220104_14_06_09_Pro (2).jpg"
     read_image = open(read_image_path, "rb")
@@ -127,4 +133,4 @@ def aadhar_extraction():
     return aadhar_details
 
 if __name__ =='__main__':  
-    app.run(debug = True) 
+    app.run(debug = True,port='5004',host='0.0.0.0') 
