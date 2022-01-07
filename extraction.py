@@ -61,6 +61,7 @@ def pan_extraction():
             for line in text_result.lines:
                 bbox.append(line.bounding_box)
                 res.append(line)
+    
     details = {
         "Name" : "",
         "Father_Name" : "",
@@ -68,10 +69,36 @@ def pan_extraction():
         "Permanent_Account_Number" : ""
     }
 
-    details["Name"] = res[3].text
-    details["Father_Name"] = res[4].text
-    details["Date_Of_Birth"] = res[5].text
-    details["Permanent_Account_Number"] = res[7].text
+    acc_bb = 0
+    img = plt.imread(read_image_path)
+    for i in range(len(res)):
+        if "Permanent Account Number" in res[i].text:
+            acc_bb = bbox[i]
+            details["Permanent_Account_Number"] = res[i+1].text
+            break
+    if acc_bb !=0 :
+        if acc_bb[1] > img.shape[0]/2:
+            details["Name"] = res[3].text
+            details["Father_Name"] = res[4].text
+            details["Date_Of_Birth"] = res[5].text
+            details["Permanent_Account_Number"] = res[7].text
+        else:
+            for i in range(len(res)):
+                if "/ Name" in res[i].text:
+                    for j in range(len(res)):
+                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/15 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[0])/69:
+                            details["Name"] =res[j].text
+                            break
+                if "/ Father's Name" in res[i].text:
+                    for j in range(len(res)):
+                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/15 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[0])/69:
+                            details["Father_Name"] =res[j].text
+                            break
+                if "Date of Birth" in res[i].text:
+                    for j in range(len(res)):
+                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/15 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[0])/69:
+                            details["Date_Of_Birth"] =res[j].text
+                            break
 
     return details
 
