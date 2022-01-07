@@ -42,12 +42,32 @@ face_ENDPOINT = "https://proof-verification-sk.cognitiveservices.azure.com/"
 
 face_client = FaceClient(face_ENDPOINT, CognitiveServicesCredentials(face_KEY))
 
-path = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Documents\autenticate_vdo\data"
+cam_url = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Pictures\Camera Roll\WIN_20220104_16_19_32_Pro.mp4"
+
 
 @app.route('/')
 def verify():
     confidence = 0 
     aadhar_card_frame = "none"
+
+    path = r"data"
+    count = 0
+    vidcap = cv2.VideoCapture(cam_url)
+    success,image = vidcap.read()
+    success = True
+    fps = vidcap.get(cv2.CAP_PROP_FPS)
+    frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    duration = frame_count/fps
+    while success:
+        vidcap.set(cv2.CAP_PROP_POS_MSEC,(count*1000))    # added this line 
+        success,image = vidcap.read()
+        print ('Read a new frame: ', success)
+        print(count)
+        image = Image.fromarray(image.astype('uint8'), 'RGB')
+        image.save("data/frame"+str(count)+".jpg")     # save frame as JPEG file
+        count = count + 0.5
+        if(count > (duration-0.5)):
+            success = False
 
     for image_path in os.listdir(path):
 
@@ -63,7 +83,7 @@ def verify():
 
     if aadhar_card_frame != "none":
         
-        image = open(r"C:\Users\M1061065\OneDrive - Mindtree Limited\Documents\autenticate_vdo\data\frame0.5.jpg", 'rb')
+        image = open(r"data\frame0.5.jpg", 'rb')
         detected_faces1 = face_client.face.detect_with_stream(image, detection_model='detection_03')
         source_image1_id = detected_faces1[0].face_id
         
