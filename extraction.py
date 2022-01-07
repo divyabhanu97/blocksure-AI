@@ -122,9 +122,12 @@ def aadhar_extraction():
         
     res = text.split()
     aadhar_number=''
+    allow = False
     for word in res:
-        # print(word)
-        if len(word) == 4 and word.isdigit():
+        if "male" in word.lower():
+            allow = True
+        if allow:
+            if len(word) == 4 and word.isdigit():
                 aadhar_number=aadhar_number  + word + ' '
     if len(aadhar_number)>=14:
                 aadhar_number = aadhar_number
