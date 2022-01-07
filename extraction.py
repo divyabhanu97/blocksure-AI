@@ -17,7 +17,7 @@ import os
 from PIL import Image
 import sys
 import time
-import requests
+import re
 from convert_base64 import ConvertoImage
 import requests
 
@@ -35,7 +35,7 @@ computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredenti
 @app.route('/pan', methods=['POST'])
 def pan_extraction():
     content = request.json
-    ConvertoImage(content['base64data'])
+    ConvertoImage(content['base64data'],'image1')
     read_image_path = "./image1.png"
     read_image = open(read_image_path, "rb")
 
@@ -77,7 +77,9 @@ def pan_extraction():
 
 @app.route('/aadhar', methods=['POST'])
 def aadhar_extraction():
-    read_image_path = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Pictures\Camera Roll\WIN_20220104_14_06_09_Pro (2).jpg"
+    content = request.json
+    ConvertoImage(content['base64data'],'image2')
+    read_image_path = "./image2.png"
     read_image = open(read_image_path, "rb")
 
     read_response = computervision_client.read_in_stream(read_image,  raw=True)
@@ -103,6 +105,7 @@ def aadhar_extraction():
             for line in text_result.lines:
                 text += line.text
                 text +=" "
+                print(text)
                 bbox.append(line.bounding_box)
                 result.append(line)
     aadhar_details = {
@@ -120,6 +123,7 @@ def aadhar_extraction():
     res = text.split()
     aadhar_number=''
     for word in res:
+        # print(word)
         if len(word) == 4 and word.isdigit():
                 aadhar_number=aadhar_number  + word + ' '
     if len(aadhar_number)>=14:
