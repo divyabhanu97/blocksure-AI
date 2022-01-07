@@ -105,7 +105,6 @@ def aadhar_extraction():
             for line in text_result.lines:
                 text += line.text
                 text +=" "
-                print(text)
                 bbox.append(line.bounding_box)
                 result.append(line)
     aadhar_details = {
