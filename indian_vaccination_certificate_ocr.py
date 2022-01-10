@@ -23,10 +23,12 @@ computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredenti
 
 app = flask.Flask(__name__)
 
-@app.route('/vaccine')
+@app.route('/vaccine', methods=['POST'])
 def certificate_data_extraction():
 
-    read_image_path = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Documents\dhp\indian\data\certificate4.JPG"
+    content = request.json
+    ConvertoImage(content['base64data'],'image1')
+    read_image_path = "./image1.png"
     read_image = open(read_image_path, "rb")
 
     read_response = computervision_client.read_in_stream(read_image,  raw=True)
@@ -95,4 +97,4 @@ def certificate_data_extraction():
     return details
 
 if __name__ =='__main__':  
-    app.run(debug = True)
+    app.run(debug = True,port='5004',host='0.0.0.0')
