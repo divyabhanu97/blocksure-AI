@@ -21,7 +21,9 @@ import re
 from convert_base64 import ConvertoImage
 import requests
 
+
 app = flask.Flask(__name__)
+CORS(app)
 
 '''
 Authenticate

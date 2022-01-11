@@ -7,3 +7,9 @@ def ConvertoImage(img_data,imagename):
         im.save(imagename+'.png', 'PNG')
     except Exception as e:
         print(str(e))
+def ConvertoVideo(video_data,videoname):
+    try:
+        im = Image.open(BytesIO(base64.b64decode(video_data)))
+        im.save(videoname+'.mp4', 'MP4')
+    except Exception as e:
+        print(str(e))

@@ -18,8 +18,12 @@ from PIL import Image, ImageDraw
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person
+from flask import request, jsonify
+from flask_cors import CORS
+from convert_base64 import ConvertoVideo
 
 app = Flask(__name__)
+CORS(app)
 
 # obj detection
 ENDPOINT = "https://centralindia.api.cognitive.microsoft.com/"
@@ -42,11 +46,15 @@ face_ENDPOINT = "https://proof-verification-sk.cognitiveservices.azure.com/"
 
 face_client = FaceClient(face_ENDPOINT, CognitiveServicesCredentials(face_KEY))
 
-cam_url = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Pictures\Camera Roll\WIN_20220104_16_19_32_Pro.mp4"
+# cam_url = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Pictures\Camera Roll\WIN_20220104_16_19_32_Pro.mp4"
 
 
-@app.route('/')
+@app.route('/vkyc',methods=['POST'])
 def verify():
+    content = request.json
+    print(content)
+    ConvertoVideo(content['base64data'],'image1')
+    cam_url = r"data\image1.mp4"
     confidence = 0 
     aadhar_card_frame = "none"
 
@@ -100,4 +108,4 @@ def verify():
         return "No aadhar card found!";
 
 if __name__ =='__main__':  
-    app.run(debug = True)  
+    app.run(debug = True,port='5005',host='0.0.0.0')  
