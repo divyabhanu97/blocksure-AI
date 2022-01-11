@@ -57,7 +57,7 @@ def verify():
     cam_url = r"data\image1.mp4"
     confidence = 0 
     aadhar_card_frame = "none"
-
+    face_frame = "none"
     path = r"data"
     count = 0
     vidcap = cv2.VideoCapture(cam_url)
@@ -69,8 +69,6 @@ def verify():
     while success:
         vidcap.set(cv2.CAP_PROP_POS_MSEC,(count*1000))    # added this line 
         success,image = vidcap.read()
-        print ('Read a new frame: ', success)
-        print(count)
         image = Image.fromarray(image.astype('uint8'), 'RGB')
         image.save("data/frame"+str(count)+".jpg")     # save frame as JPEG file
         count = count + 0.5
@@ -88,10 +86,29 @@ def verify():
                 confidence = prediction.probability * 100
                 aadhar_card_frame = input_path
                 break
+                
+        if aadhar_card_frame == "none":
+            img = cv2.imread(input_path)
+            gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            frame_gray = cv2.equalizeHist(gray_img)
 
-    if aadhar_card_frame != "none":
+            face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_alt.xml")
+            eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
+
+            faces = face_cascade.detectMultiScale(frame_gray, 1.3, 3)
+            if len(faces) == 1:
+                for (x,y,w,h) in faces:
+                    roi_gray = frame_gray[y:y+h, x:x+w]
+                    roi_color = img[y:y+h, x:x+w]
+                    eyes = eye_cascade.detectMultiScale(roi_gray)
+                    if (len(eyes) == 2):
+                        face_frame = input_path
+        else:
+            break
+
+    if aadhar_card_frame != "none" and face_frame != "none":
         
-        image = open(r"data\frame0.5.jpg", 'rb')
+        image = open(face_frame, 'rb')
         detected_faces1 = face_client.face.detect_with_stream(image, detection_model='detection_03')
         source_image1_id = detected_faces1[0].face_id
         
@@ -102,6 +119,7 @@ def verify():
         verify_result_same = face_client.face.verify_face_to_face(source_image1_id, source_image2_id)
         if verify_result_same.confidence > 0.25:
             return "VERIFIED!";
+            print("ver")
         else:
             return "MISMATCH";
     else:
