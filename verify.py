@@ -118,12 +118,12 @@ def verify():
         
         verify_result_same = face_client.face.verify_face_to_face(source_image1_id, source_image2_id)
         if verify_result_same.confidence > 0.25:
-            return "VERIFIED!";
+            return "VERIFIED!"
             print("ver")
         else:
-            return "MISMATCH";
+            return "MISMATCH"
     else:
-        return "No aadhar card found!";
+        return "No aadhar card found!"
 
 if __name__ =='__main__':  
     app.run(debug = True,port='5005',host='0.0.0.0')  
