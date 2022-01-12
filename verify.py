@@ -125,5 +125,8 @@ def verify():
     else:
         return "No aadhar card found!"
 
+    if face_frame == "none":
+        return "No face found"
+
 if __name__ =='__main__':  
     app.run(debug = True,port='5005',host='0.0.0.0')  

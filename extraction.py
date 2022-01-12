@@ -45,6 +45,7 @@ def pan_extraction():
 
     res = []
     bbox = []
+    txt = ""
     # Get the operation location (URL with an ID at the end) from the response
     read_operation_location = read_response.headers["Operation-Location"]
     # Grab the ID from the URL
@@ -63,7 +64,7 @@ def pan_extraction():
             for line in text_result.lines:
                 bbox.append(line.bounding_box)
                 res.append(line)
-    
+                txt += line.text
     details = {
         "Name" : "",
         "Father_Name" : "",
@@ -73,11 +74,12 @@ def pan_extraction():
 
     acc_bb = 0
     img = plt.imread(read_image_path)
-    for i in range(len(res)):
-        if "Permanent Account Number" in res[i].text:
-            acc_bb = bbox[i]
-            details["Permanent_Account_Number"] = res[i+1].text
-            break
+    if "INCOME TAX DEPARTMENT" in txt and "GOVT. OF INDIA" in txt:
+        for i in range(len(res)):
+            if "Permanent Account Number" in res[i].text:
+                acc_bb = bbox[i]
+                details["Permanent_Account_Number"] = res[i+1].text
+                break
     if acc_bb !=0 :
         if acc_bb[1] > img.shape[0]/2:
             details["Name"] = res[3].text
@@ -102,7 +104,9 @@ def pan_extraction():
                             details["Date_Of_Birth"] =res[j].text
                             break
 
-    return details
+        return details
+    else:
+        return "Error in uploaded card"
 
 @app.route('/aadhar', methods=['POST'])
 def aadhar_extraction():
@@ -165,7 +169,10 @@ def aadhar_extraction():
     aadhar_details["Date_Of_Birth"] = str(re.findall(r"[\d]{1,4}[/-][\d]{1,4}[/-][\d]{1,4}", text)).replace("]", "").replace("[","").replace("'", "")
     aadhar_details["Gender"] = sex
     aadhar_details["Aadhar_Number"] = aadhar_number
-    return aadhar_details
+    if "Government of India" in text:
+        return aadhar_details
+    else:
+        return "Error in uploaded card"
 
 if __name__ =='__main__':  
     app.run(debug = True,port='5004',host='0.0.0.0') 
