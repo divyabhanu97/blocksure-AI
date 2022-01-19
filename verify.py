@@ -42,7 +42,7 @@ face_ENDPOINT = "https://proof-verification-sk.cognitiveservices.azure.com/"
 
 face_client = FaceClient(face_ENDPOINT, CognitiveServicesCredentials(face_KEY))
 
-cam_url = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Pictures\Camera Roll\WIN_20220104_16_19_32_Pro.mp4"
+cam_url = r"C:\Users\M1061065\OneDrive - Mindtree Limited\Documents\vkyc\video.mp4"
 
 
 @app.route('/')
