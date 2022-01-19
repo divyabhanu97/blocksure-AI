@@ -10,6 +10,6 @@ def ConvertoImage(img_data,imagename):
 def ConvertoVideo(video_data,videoname):
     try:
         im = Image.open(BytesIO(base64.b64decode(video_data)))
-        im.save(videoname+'.mp4', 'MP4')
+        im.save('data/'+videoname+'.mp4', 'MP4')
     except Exception as e:
         print(str(e))
