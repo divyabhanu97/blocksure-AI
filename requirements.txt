@@ -1,0 +1,10 @@
+numpy
+flask
+flask_cors
+azure-cognitiveservices-vision-computervision
+azure-cognitiveservices-vision-customvision
+azure-cognitiveservices-vision-face
+Pillow
+opencv-python
+matplotlib
+
