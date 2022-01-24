@@ -131,17 +131,17 @@ def pan_extraction():
             for i in range(len(res)):
                 if "/ Name" in res[i].text:
                     for j in range(len(res)):
-                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/15 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[0])/69:
+                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/12 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[1])/50:
                             details["Name"] =res[j].text
                             break
                 if "/ Father's Name" in res[i].text:
                     for j in range(len(res)):
-                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/15 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[0])/69:
+                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/12 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[1])/50:
                             details["Father_Name"] =res[j].text
                             break
                 if "Date of Birth" in res[i].text:
                     for j in range(len(res)):
-                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/15 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[0])/69:
+                        if bbox[i][1] != bbox[j][1] and 0 < (bbox[j][1] - bbox[i][1]) <= (img.shape[0])/12 and  0 <= abs(bbox[j][0] - bbox[i][0]) <(img.shape[1])/50:
                             details["Date_Of_Birth"] =res[j].text
                             break
 
