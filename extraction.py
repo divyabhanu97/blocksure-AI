@@ -28,6 +28,7 @@ from azure.cognitiveservices.vision.customvision.prediction import CustomVisionP
 from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateBatch, ImageFileCreateEntry, Region
 from msrest.authentication import ApiKeyCredentials
 import time, uuid
+from datetime import datetime
 
 import asyncio
 import io
@@ -43,6 +44,7 @@ from azure.cognitiveservices.vision.face.models import TrainingStatusType, Perso
 from flask import request, jsonify
 from flask_cors import CORS
 from convert_base64 import ConvertoVideo
+from dateutil import parser
 
 
 app = flask.Flask(__name__)
@@ -286,8 +288,78 @@ def verify():
     else:
         return {"status":"No aadhar card found!"}
 
+def data_extraction(read_image):
+    read_response = computervision_client.read_in_stream(read_image,  raw=True)
+
+    result = []
+    bbox = []
+    text = ""
+    # Get the operation location (URL with an ID at the end) from the response
+    read_operation_location = read_response.headers["Operation-Location"]
+    # Grab the ID from the URL
+    operation_id = read_operation_location.split("/")[-1]
+
+    # Call the "GET" API and wait for it to retrieve the results 
+    while True:
+        read_result = computervision_client.get_read_result(operation_id)
+        if read_result.status not in ['notStarted', 'running']:
+            break
+        time.sleep(1)
+
+    # Print the detected text, line by line
+    if read_result.status == OperationStatusCodes.succeeded:
+        for text_result in read_result.analyze_result.read_results:
+            for line in text_result.lines:
+                text += line.text
+                text +=" "
+                bbox.append(line.bounding_box)
+                result.append(line)
+    return result, text
+
+@app.route('/drivinglicence', methods=['POST'])
+def licence_extraction():
+    content = request.json
+    ConvertoImage(content['frontbase64data'],'image2')
+    ConvertoImage(content['backbase64data'],'image3')
+    read_image_path1 = "./image2.png"
+    read_image_path2 = "./image3.png"
+    read_image1 = open(read_image_path1, "rb")
+    read_image2 = open(read_image_path2, "rb")
+    frontresult=data_extraction(read_image1)
+    backresult=data_extraction(read_image2)
+    print(frontresult[1],backresult[1])
+    for index, item in enumerate(frontresult[0], start=0):   # Python indexes start at zero
+        print(index,frontresult[0][index].text)
+    for index, item in enumerate(backresult[0], start=0):   # Python indexes start at zero
+        print(index,backresult[0][index].text)
+    driving_licence_details = {
+        "Name" : "",
+        "Date_Of_Birth" : "",
+        "Reference_Number" : "",
+        "Date of Issue": "",
+        "Validity" : "",
+        "Non Transport": ""
+    }
+
+    driving_licence_details["Name"] =frontresult[0][3].text 
+    
+    driving_licence_details["Reference_Number"] =frontresult[0][2].text
+    if(re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text)):
+        match_str = re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text)
+        res = datetime.strptime(match_str.group(), '%d-%m-%Y').date()
+        driving_licence_details["Date of Issue"] = str(res)
+        driving_licence_details["Date_Of_Birth"] = backresult[0][15].text
+    else:
+        driving_licence_details["Date of Issue"] = backresult[0][14].text
+        driving_licence_details["Date_Of_Birth"] = backresult[0][16].text
+    driving_licence_details["Validity"] = backresult[0][4].text
+    driving_licence_details["Non Transport"] = backresult[0][1].text + " " + backresult[0][2].text
+    print(driving_licence_details)
+    return driving_licence_details
+
 @app.route('/',methods=['GET'])
 def hello():
     return "hello world"
-if __name__ =='__main__':  
-    app.run(debug = True,port='5006') 
+if __name__ =='__main__': 
+    # licence_extraction() 
+    app.run(debug = True,port='5006',host='0.0.0.0') 
