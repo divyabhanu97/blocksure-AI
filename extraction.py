@@ -344,16 +344,27 @@ def licence_extraction():
     driving_licence_details["Name"] =frontresult[0][3].text 
     
     driving_licence_details["Reference_Number"] =frontresult[0][2].text
+    # print(re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text))
+    text=backresult[0][13].text
+    # print(text[0].isdigit())
     if(re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text)):
         match_str = re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text)
         res = datetime.strptime(match_str.group(), '%d-%m-%Y').date()
         driving_licence_details["Date of Issue"] = str(res)
         driving_licence_details["Date_Of_Birth"] = backresult[0][15].text
+    elif(text[0].isdigit()):
+        driving_licence_details["Date of Issue"] = text
+        driving_licence_details["Date_Of_Birth"] = backresult[0][15].text
     else:
         driving_licence_details["Date of Issue"] = backresult[0][14].text
         driving_licence_details["Date_Of_Birth"] = backresult[0][16].text
     driving_licence_details["Validity"] = backresult[0][4].text
-    driving_licence_details["Non Transport"] = backresult[0][1].text + " " + backresult[0][2].text
+    if 'Transport' in backresult[0][2].text:
+        driving_licence_details["Non Transport"] = backresult[0][1].text + " " + backresult[0][2].text
+    else:
+        driving_licence_details["Non Transport"] = backresult[0][1].text
+
+    
     print(driving_licence_details)
     return driving_licence_details
 
