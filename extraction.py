@@ -152,8 +152,8 @@ def pan_extraction():
 @app.route('/aadhar', methods=['POST'])
 def aadhar_extraction():
     content = request.json
-    ConvertoImage(content['base64data'],'image2')
-    read_image_path = "./image2.png"
+    ConvertoImage(content['base64data'],'image5')
+    read_image_path = "./image5.png"
     read_image = open(read_image_path, "rb")
 
     read_response = computervision_client.read_in_stream(read_image,  raw=True)
@@ -188,6 +188,9 @@ def aadhar_extraction():
         "Aadhar_Number" : ""
     }
 
+    for index, item in enumerate(result, start=0):   # Python indexes start at zero
+        print(index,result[index].text)
+
     if "female" in text.lower():
         sex = "female"
     else:
@@ -206,7 +209,8 @@ def aadhar_extraction():
                 aadhar_number = aadhar_number
     else:
         aadhar_number = ""
-    aadhar_details["Name"] =result[1].text    
+
+    aadhar_details["Name"] =result[2].text    
     aadhar_details["Date_Of_Birth"] = str(re.findall(r"[\d]{1,4}[/-][\d]{1,4}[/-][\d]{1,4}", text)).replace("]", "").replace("[","").replace("'", "")
     aadhar_details["Gender"] = sex
     aadhar_details["Aadhar_Number"] = aadhar_number
@@ -336,33 +340,38 @@ def licence_extraction():
         "Name" : "",
         "Date_Of_Birth" : "",
         "Reference_Number" : "",
-        "Date of Issue": "",
+        "Date_of_Issue": "",
         "Validity" : "",
-        "Non Transport": ""
+        "Non_Transport": ""
     }
-
-    driving_licence_details["Name"] =frontresult[0][3].text 
-    
-    driving_licence_details["Reference_Number"] =frontresult[0][2].text
+    text=frontresult[0][2].text
+    if(text.isalnum()):
+        driving_licence_details["Name"] =frontresult[0][3].text 
+        
+        driving_licence_details["Reference_Number"] =frontresult[0][2].text
+    else:
+        driving_licence_details["Name"] =frontresult[0][4].text 
+        
+        driving_licence_details["Reference_Number"] =frontresult[0][3].text
     # print(re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text))
     text=backresult[0][13].text
     # print(text[0].isdigit())
     if(re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text)):
         match_str = re.search(r'\d{2}-\d{2}-\d{4}', backresult[0][13].text)
         res = datetime.strptime(match_str.group(), '%d-%m-%Y').date()
-        driving_licence_details["Date of Issue"] = str(res)
+        driving_licence_details["Date_of_Issue"] = str(res)
         driving_licence_details["Date_Of_Birth"] = backresult[0][15].text
     elif(text[0].isdigit()):
-        driving_licence_details["Date of Issue"] = text
+        driving_licence_details["Date_of_Issue"] = text
         driving_licence_details["Date_Of_Birth"] = backresult[0][15].text
     else:
-        driving_licence_details["Date of Issue"] = backresult[0][14].text
+        driving_licence_details["Date_of_Issue"] = backresult[0][14].text
         driving_licence_details["Date_Of_Birth"] = backresult[0][16].text
     driving_licence_details["Validity"] = backresult[0][4].text
     if 'Transport' in backresult[0][2].text:
-        driving_licence_details["Non Transport"] = backresult[0][1].text + " " + backresult[0][2].text
+        driving_licence_details["Non_Transport"] = backresult[0][1].text + " " + backresult[0][2].text
     else:
-        driving_licence_details["Non Transport"] = backresult[0][1].text
+        driving_licence_details["Non_Transport"] = backresult[0][1].text
 
     
     print(driving_licence_details)
